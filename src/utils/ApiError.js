@@ -1,7 +1,11 @@
+/**
+ * Custom API error class for consistent error responses.
+ * Extends native Error with HTTP status codes and structured error data.
+ */
 class api_error extends Error {
   constructor(
     statuscode,
-    messages = 'something went wrong ',
+    messages = 'something went wrong',
     errors = [],
     stack = ''
   ) {
@@ -20,4 +24,4 @@ class api_error extends Error {
   }
 }
 
-export { api_error }
+export { api_error };

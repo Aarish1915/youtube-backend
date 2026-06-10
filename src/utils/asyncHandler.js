@@ -1,60 +1,15 @@
+/**
+ * Async handler utility — wraps async route handlers to catch
+ * rejected promises and forward them to Express error middleware.
+ * Eliminates the need for try-catch blocks in every controller.
+ *
+ * @param {Function} requestHandler - Express async route handler
+ * @returns {Function} Express middleware with error forwarding
+ */
+const asyncHandler = (requestHandler) => {
+  return (req, res, next) => {
+    Promise.resolve(requestHandler(req, res, next)).catch((err) => next(err));
+  };
+};
 
-// this is a utility function that wraps asynchronous route handlers in an Express application. It allows you to handle errors in a consistent way without having to write try-catch blocks in every route handler.
-
-
-
-
-const asyncHandler =(resuestHandler)=>{
-    return (req,res,next)=>{
-        Promise.resolve(resuestHandler(req,res,next)).
-        catch((err)=>next(err))
-}
-}
-
-
-
-
-export{asyncHandler}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// const asyncHandler = (fn) =>async (req,res,next)=>{
-
-//     try {
-//         await fn(req,res,next)
-        
-//     } catch (error) {
-//         res.status(error.code || 500).json({
-//             success:false,
-//             message:error.message || "Internal Server Error"
-//         })
-        
-//     }
-// }
+export { asyncHandler };

@@ -1,3 +1,7 @@
+/**
+ * User controller — handles user registration (with avatar upload),
+ * profile retrieval, and watch history management.
+ */
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { api_error } from '../utils/api_error.js';
 import { api_response } from '../utils/api_Response.js';
