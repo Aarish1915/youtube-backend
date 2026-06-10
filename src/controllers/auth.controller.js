@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { asyncHandler } from '../utils/asyncHandler.js';
-import { api_error } from '../utils/api_error.js';
-import { api_response } from '../utils/api_Response.js';
+import { asyncHandler } from '../utils/AsyncHandler.js';
+import { api_error } from '../utils/ApiError.js';
+import { api_response } from '../utils/ApiResponse.js';
 import { User } from '../models/user.model.js';
 import { loginSchema, registerSchema } from '../validators/auth.validator.js';
 

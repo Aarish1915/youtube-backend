@@ -2,9 +2,9 @@
  * User controller — handles user registration (with avatar upload),
  * profile retrieval, and watch history management.
  */
-import { asyncHandler } from '../utils/asyncHandler.js';
-import { api_error } from '../utils/api_error.js';
-import { api_response } from '../utils/api_Response.js';
+import { asyncHandler } from '../utils/AsyncHandler.js';
+import { api_error } from '../utils/ApiError.js';
+import { api_response } from '../utils/ApiResponse.js';
 import { User } from '../models/user.model.js';
 import { Video } from '../models/video.model.js';
 import { uploadToCloudinary } from '../utils/file_upload.js';

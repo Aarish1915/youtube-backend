@@ -1,9 +1,9 @@
 
 
 import { Router } from 'express';
-import { protect } from '../middlewares/auth.middleware.js';
+import { protect } from '../middlewares/Auth.middleware.js';
 import { registerUser, getCurrentUser, addWatchHistory } from '../controllers/user.controller.js';
-import { upload } from '../middlewares/multer.middleware.js';
+import { upload } from '../middlewares/upload.middleware.js';
 
 const router = Router();
 
