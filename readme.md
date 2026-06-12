@@ -1,6 +1,6 @@
 # 🎬 YouTube Backend API
 
-A production-grade RESTful API backend for a YouTube-style video platform built with **Node.js**, **Express**, and **MongoDB**. Features JWT authentication with refresh token rotation, Cloudinary-based video uploads, and a modular MVC architecture.
+A production-grade RESTful API backend for a YouTube-style video platform built with **Node.js**, **Express**, and **MongoDB**. Features JWT authentication with refresh token rotation, **Google OAuth 2.0** login, Cloudinary-based video uploads, and a modular MVC architecture.
 
 ![Node.js](https://img.shields.io/badge/Node.js-v20+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-v5-000000?style=for-the-badge&logo=express&logoColor=white)
@@ -13,6 +13,7 @@ A production-grade RESTful API backend for a YouTube-style video platform built 
 ## ✨ Key Features
 
 - **JWT Authentication** — Register, login, logout with access + refresh token rotation
+- **Google OAuth 2.0** — Sign in with Google, auto-links existing accounts by email
 - **Video Management** — Upload, list, and retrieve videos with Cloudinary storage
 - **Comments System** — Add and retrieve comments on videos
 - **User Profiles** — Profile management with avatar uploads and watch history
@@ -74,12 +75,14 @@ The server will start at `http://localhost:8000`
 
 ### Auth (`/api/v1/auth`)
 
-| Method | Endpoint    | Description              | Auth |
-|--------|-------------|--------------------------|------|
-| POST   | `/register` | Register a new user      | ❌   |
-| POST   | `/login`    | Login and receive tokens | ❌   |
-| POST   | `/refresh`  | Refresh access token     | ❌   |
-| POST   | `/logout`   | Invalidate refresh token | ❌   |
+| Method | Endpoint             | Description                          | Auth |
+|--------|----------------------|--------------------------------------|------|
+| POST   | `/register`          | Register a new user                  | ❌   |
+| POST   | `/login`             | Login and receive tokens             | ❌   |
+| POST   | `/refresh`           | Refresh access token                 | ❌   |
+| POST   | `/logout`            | Invalidate refresh token             | ❌   |
+| GET    | `/google`            | Initiate Google OAuth 2.0 flow       | ❌   |
+| GET    | `/google/callback`   | Google OAuth callback (returns JWT)  | ❌   |
 
 ### Users (`/api/v1/users`)
 
@@ -127,6 +130,25 @@ The server will start at `http://localhost:8000`
 └─────────┘                                  └──────────┘
 ```
 
+### Google OAuth 2.0 Flow
+
+```
+┌─────────┐  GET /auth/google           ┌──────────┐        ┌─────────────┐
+│  Client  │ ────────────────────────▶  │  Server  │ ──▶   │   Google    │
+│          │                            │          │        │  Consent    │
+│          │  ◀─── redirect ──────────  │          │  ◀──  │  Screen     │
+│          │                            │          │        └─────────────┘
+│          │  GET /auth/google/callback  │          │
+│          │  (with auth code)           │          │
+│          │ ────────────────────────▶  │          │
+│          │  ◀──────────────────────── │          │
+│          │  200 { user, accessToken,   │          │
+│          │        refreshToken }       │          │
+└─────────┘                            └──────────┘
+```
+
+> **Note:** If a user signs in with Google using an email that already has a local account, the Google ID is automatically linked to the existing account.
+
 ---
 
 ## 🧪 Testing
@@ -160,7 +182,7 @@ Tests use **MongoDB Memory Server** for an isolated in-memory database — no ex
 | Runtime | Node.js |
 | Framework | Express v5 |
 | Database | MongoDB + Mongoose |
-| Authentication | JWT (jsonwebtoken) |
+| Authentication | JWT (jsonwebtoken), Passport.js, Google OAuth 2.0 |
 | File Storage | Cloudinary |
 | File Upload | Multer |
 | Validation | Joi |
@@ -186,6 +208,9 @@ Tests use **MongoDB Memory Server** for an isolated in-memory database — no ex
 | `CLOUDINARY_API_KEY` | Cloudinary API key | — |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret | — |
 | `CORS_ORIGIN` | Allowed CORS origin | `http://localhost:5173` |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID | — |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | — |
+| `GOOGLE_CALLBACK_URL` | Google OAuth redirect URI | `http://localhost:8000/api/v1/auth/google/callback` |
 
 ---
 

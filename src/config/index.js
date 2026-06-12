@@ -15,4 +15,7 @@ export const {
   CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET,
   CORS_ORIGIN = 'http://localhost:5173',
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+  GOOGLE_CALLBACK_URL = 'http://localhost:8000/api/v1/auth/google/callback',
 } = process.env;

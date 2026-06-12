@@ -30,6 +30,12 @@ const userSchema = new Schema(
       index: true,
     },
 
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, // allows multiple null values (local users won't have this)
+    },
+
     avatar: {
       type: String,
       default: '',
