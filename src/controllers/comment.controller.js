@@ -31,3 +31,23 @@ export const listComments = asyncHandler(async (req, res) => {
 
   res.status(200).json(new api_response(200, comments, 'Comments retrieved')); 
 });
+
+export const updateComment = asyncHandler(async (req, res) => {
+  const { text } = req.body;
+  if (!text) throw new api_error(400, 'Text is required');
+
+  const comment = await Comment.findOne({ _id: req.params.id, user: req.user._id });
+  if (!comment) throw new api_error(404, 'Comment not found or unauthorized');
+
+  comment.text = text;
+  await comment.save();
+
+  res.status(200).json(new api_response(200, comment, 'Comment updated successfully'));
+});
+
+export const deleteComment = asyncHandler(async (req, res) => {
+  const comment = await Comment.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+  if (!comment) throw new api_error(404, 'Comment not found or unauthorized');
+
+  res.status(200).json(new api_response(200, null, 'Comment deleted successfully'));
+});

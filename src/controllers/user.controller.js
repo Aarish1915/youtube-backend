@@ -7,7 +7,7 @@ import { api_error } from '../utils/ApiError.js';
 import { api_response } from '../utils/ApiResponse.js';
 import { User } from '../models/user.model.js';
 import { Video } from '../models/video.model.js';
-import { uploadToCloudinary } from '../utils/file_upload.js';
+import { uploadToCloudinary } from '../services/cloudinary.service.js';
 
 export const registerUser = asyncHandler(async (req, res) => {
   const { Fullname, fullName, email, password, username } = req.body;
@@ -94,6 +94,32 @@ export const addWatchHistory = asyncHandler(async (req, res) => {
   await user.save();
 
   res.status(200).json(new api_response(200, { watchHistory: user.WatchHistory }, 'Watch history updated'));
+});
+
+export const updateAccountDetails = asyncHandler(async (req, res) => {
+  const { fullName, email } = req.body;
+  if (!fullName && !email) throw new api_error(400, 'fullName or email is required to update');
+
+  const user = await User.findById(req.user._id);
+  if (fullName) user.fullName = fullName;
+  if (email) user.email = email.toLowerCase();
+
+  await user.save();
+  res.status(200).json(new api_response(200, { user }, 'Account details updated'));
+});
+
+export const updateAvatar = asyncHandler(async (req, res) => {
+  const avatarLocalPath = req.file?.path;
+  if (!avatarLocalPath) throw new api_error(400, 'Avatar file is missing');
+
+  const avatarUrl = await uploadToCloudinary(avatarLocalPath);
+  if (!avatarUrl) throw new api_error(500, 'Error uploading avatar');
+
+  const user = await User.findByIdAndUpdate(req.user._id, {
+    $set: { avatar: avatarUrl.secure_url }
+  }, { new: true }).select('-password -refreshToken');
+
+  res.status(200).json(new api_response(200, { user }, 'Avatar updated successfully'));
 });
 
 

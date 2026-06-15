@@ -35,7 +35,16 @@ export const uploadVideo = asyncHandler(async (req, res) => {
 });
 
 export const listVideos = asyncHandler(async (req, res) => {
-  const videos = await Video.find({ isPublic: true }).sort({ createdAt: -1 }).populate('owner', 'username fullName avatar');
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const videos = await Video.find({ isPublic: true })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .populate('owner', 'username fullName avatar');
+
   res.status(200).json(new api_response(200, videos, 'Public videos retrieved'));
 });
 
@@ -45,4 +54,28 @@ export const getVideoById = asyncHandler(async (req, res) => {
     throw new api_error(404, 'Video not found');
   }
   res.status(200).json(new api_response(200, video, 'Video retrieved successfully'));
+});
+
+export const updateVideo = asyncHandler(async (req, res) => {
+  const { title, description } = req.body;
+  const video = await Video.findOne({ _id: req.params.id, owner: req.user._id });
+  
+  if (!video) throw new api_error(404, 'Video not found or unauthorized');
+
+  if (title) video.title = title;
+  if (description) video.description = description;
+  
+  await video.save();
+  res.status(200).json(new api_response(200, video, 'Video updated successfully'));
+});
+
+export const deleteVideo = asyncHandler(async (req, res) => {
+  const video = await Video.findOne({ _id: req.params.id, owner: req.user._id });
+  
+  if (!video) throw new api_error(404, 'Video not found or unauthorized');
+  
+  // Here we would typically also delete from Cloudinary using video.videoPublicId
+  await Video.findByIdAndDelete(video._id);
+  
+  res.status(200).json(new api_response(200, null, 'Video deleted successfully'));
 });

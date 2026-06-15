@@ -12,12 +12,13 @@ A production-grade RESTful API backend for a YouTube-style video platform built 
 
 ## ✨ Key Features
 
-- **JWT Authentication** — Register, login, logout with access + refresh token rotation
-- **Video Management** — Upload, list, and retrieve videos with Cloudinary storage
-- **Comments System** — Add and retrieve comments on videos
-- **User Profiles** — Profile management with avatar uploads and watch history
+- **Full-Stack SPA** — Built-in native Vanilla JS Single Page Application with dynamic UI
+- **JWT & OAuth Auth** — Email/Password + Google OAuth 2.0 login with refresh token rotation
+- **Engagement System** — Likes, subscriptions, and comment functionality
+- **Video Management** — Upload, edit, delete, and list paginated videos with Cloudinary storage
+- **User Profiles** — Avatar uploads, watch history tracking, and account updates
 - **Input Validation** — Request validation using Joi schemas
-- **Security Hardened** — Helmet headers, CORS, bcrypt password hashing
+- **Security Hardened** — Helmet headers, CORS, express-rate-limit, bcrypt password hashing
 - **Global Error Handling** — Centralized error middleware with custom `ApiError` class
 - **Testing Ready** — Jest + Supertest setup with MongoDB Memory Server
 
@@ -27,15 +28,18 @@ A production-grade RESTful API backend for a YouTube-style video platform built 
 
 ```
 src/
-├── config/          # Environment variables and app configuration
-├── controllers/     # Request handlers (auth, user, video, comment)
+├── config/          # Environment variables and Passport configuration
+├── controllers/     # Request handlers (auth, user, video, comment, like, subscription)
 ├── db/              # MongoDB connection setup
-├── middlewares/      # Auth guard, file upload, error handling
-├── models/          # Mongoose schemas (User, Video, Comment)
+├── middlewares/     # Auth guard, file upload, error handling, rate limiting
+├── models/          # Mongoose schemas (User, Video, Comment, Like, Subscription)
 ├── routes/          # Express route definitions
 ├── services/        # Cloudinary integration service
 ├── utils/           # ApiError, ApiResponse, asyncHandler
 └── validators/      # Joi validation schemas
+Public/
+├── app.js           # Frontend Single Page Application logic
+└── style.css        # Frontend styling (Dark mode UI)
 ```
 
 ---
@@ -78,6 +82,7 @@ The server will start at `http://localhost:8000`
 |--------|-------------|--------------------------|------|
 | POST   | `/register` | Register a new user      | ❌   |
 | POST   | `/login`    | Login and receive tokens | ❌   |
+| GET    | `/google`   | Login with Google OAuth  | ❌   |
 | POST   | `/refresh`  | Refresh access token     | ❌   |
 | POST   | `/logout`   | Invalidate refresh token | ❌   |
 
@@ -87,15 +92,19 @@ The server will start at `http://localhost:8000`
 |--------|------------------|---------------------------------|------|
 | POST   | `/register`      | Register with avatar upload     | ❌   |
 | GET    | `/me`            | Get current user profile        | ✅   |
+| PATCH  | `/update-account`| Update profile details          | ✅   |
+| PATCH  | `/avatar`        | Upload new avatar               | ✅   |
 | POST   | `/watch-history` | Add video to watch history      | ✅   |
 
 ### Videos (`/api/v1/videos`)
 
 | Method | Endpoint   | Description                  | Auth |
 |--------|------------|------------------------------|------|
-| GET    | `/`        | List all public videos       | ❌   |
+| GET    | `/?page=1` | List all public videos       | ❌   |
 | POST   | `/upload`  | Upload a new video           | ✅   |
 | GET    | `/:id`     | Get video by ID              | ❌   |
+| PATCH  | `/:id`     | Update video details         | ✅   |
+| DELETE | `/:id`     | Delete video                 | ✅   |
 
 ### Comments (`/api/v1/comments`)
 
@@ -103,6 +112,19 @@ The server will start at `http://localhost:8000`
 |--------|-------------------|--------------------------|------|
 | POST   | `/`               | Create a comment         | ✅   |
 | GET    | `/video/:videoId` | Get comments for a video | ❌   |
+| PATCH  | `/:id`            | Update comment text      | ✅   |
+| DELETE | `/:id`            | Delete comment           | ✅   |
+
+### Engagement (`/api/v1/likes` & `/api/v1/subscriptions`)
+
+| Method | Endpoint                     | Description                  | Auth |
+|--------|------------------------------|------------------------------|------|
+| POST   | `/likes/toggle/v/:videoId`   | Toggle like on video         | ✅   |
+| POST   | `/likes/toggle/c/:commentId` | Toggle like on comment       | ✅   |
+| GET    | `/likes/videos`              | Get user's liked videos      | ✅   |
+| POST   | `/subscriptions/c/:channelId`| Toggle channel subscription  | ✅   |
+| GET    | `/subscriptions/c/:channelId`| Get subscribers of channel   | ✅   |
+| GET    | `/subscriptions/u/:userId`   | Get channels user subbed to  | ✅   |
 
 ---
 
@@ -160,11 +182,12 @@ Tests use **MongoDB Memory Server** for an isolated in-memory database — no ex
 | Runtime | Node.js |
 | Framework | Express v5 |
 | Database | MongoDB + Mongoose |
-| Authentication | JWT (jsonwebtoken) |
+| Authentication | JWT + Passport (Google OAuth) |
 | File Storage | Cloudinary |
 | File Upload | Multer |
 | Validation | Joi |
-| Security | Helmet, CORS, bcrypt |
+| Security | Helmet, CORS, express-rate-limit, bcrypt |
+| Frontend | Vanilla JS, CSS3, HTML5 (SPA) |
 | Testing | Jest, Supertest |
 | Logging | Morgan |
 

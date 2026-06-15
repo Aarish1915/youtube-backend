@@ -6,11 +6,13 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import passport from 'passport';
 
-import { CORS_ORIGIN } from './config/index.js';
+import { CORS_ORIGIN, NODE_ENV } from './config/index.js';
 import authRouter from './routes/auth.routes.js';
 import userRouter from './routes/user.routes.js';
 import videoRouter from './routes/video.routes.js';
 import commentRouter from './routes/comment.routes.js';
+import likeRouter from './routes/like.routes.js';
+import subscriptionRouter from './routes/subscription.routes.js';
 import { notFound, errorHandler } from './middlewares/error.middleware.js';
 import healthRouter from './routes/health.routes.js';
 
@@ -30,8 +32,8 @@ function sanitize(obj) {
 }
 
 // Security middleware
-app.use(helmet());
-app.use(morgan('dev'));
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '16kb' }));
 app.use(express.urlencoded({ limit: '16kb', extended: true }));
 app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
@@ -63,6 +65,8 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/videos', videoRouter);
 app.use('/api/v1/comments', commentRouter);
+app.use('/api/v1/likes', likeRouter);
+app.use('/api/v1/subscriptions', subscriptionRouter);
 app.use('/health', healthRouter);
 
 // Error handling
