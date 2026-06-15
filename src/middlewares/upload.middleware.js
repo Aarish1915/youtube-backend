@@ -1,8 +1,15 @@
 import multer from 'multer';
+import fs from 'fs';
+
+// Ensure temp upload directory exists (cloud platforms have ephemeral filesystems)
+const tempDir = './Public/temp';
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, './Public/temp');
+    cb(null, tempDir);
   },
   filename: (req, file, cb) => {
     const timestamp = Date.now();

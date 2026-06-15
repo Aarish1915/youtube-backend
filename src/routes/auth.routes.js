@@ -19,25 +19,36 @@ router.get('/google',
 );
 
 router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login', session: false }),
+  passport.authenticate('google', { failureRedirect: '/oauth-test.html?error=Google+authentication+failed', session: false }),
   (req, res) => {
     // req.user is set by Passport from the strategy's done() callback
     const { user, accessToken, refreshToken } = req.user;
-    res.status(200).json({
-      success: true,
-      data: {
-        user: {
-          id: user._id,
-          email: user.email,
-          username: user.username,
-          fullName: user.fullName,
-          avatar: user.avatar,
+
+    // If client wants JSON (Postman / API call), return JSON
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          user: {
+            id: user._id,
+            email: user.email,
+            username: user.username,
+            fullName: user.fullName,
+            avatar: user.avatar,
+          },
+          accessToken,
+          refreshToken,
         },
-        accessToken,
-        refreshToken,
-      },
-      message: 'Google login successful',
+        message: 'Google login successful',
+      });
+    }
+
+    // Browser flow — redirect to test page with tokens
+    const params = new URLSearchParams({
+      accessToken,
+      refreshToken
     });
+    res.redirect(`/oauth-callback.html?${params.toString()}`);
   }
 );
 
