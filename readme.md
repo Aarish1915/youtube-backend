@@ -1,26 +1,27 @@
-# 🎬 YouTube Backend API
+# 🎬 VidTube Platform
 
-A production-grade RESTful API backend for a YouTube-style video platform built with **Node.js**, **Express**, and **MongoDB**. Features JWT authentication with refresh token rotation, Cloudinary-based video uploads, and a modular MVC architecture.
+**🟢 Live Demo:** [https://vidtube-icl1.onrender.com](https://vidtube-icl1.onrender.com)
+
+A production-grade, full-stack video platform built with **Node.js**, **Express**, **MongoDB**, and **Vanilla JS**. Features robust JWT authentication using secure `httpOnly` cookies, Google OAuth 2.0 integration, Cloudinary-based video pipelines, and automated continuous deployment on Render.
 
 ![Node.js](https://img.shields.io/badge/Node.js-v20+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-v5-000000?style=for-the-badge&logo=express&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-Auth-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
-![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)
+![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 
 ---
 
 ## ✨ Key Features
 
-- **Full-Stack SPA** — Built-in native Vanilla JS Single Page Application with dynamic UI
-- **JWT & OAuth Auth** — Email/Password + Google OAuth 2.0 login with refresh token rotation
-- **Engagement System** — Likes, subscriptions, and comment functionality
-- **Video Management** — Upload, edit, delete, and list paginated videos with Cloudinary storage
-- **User Profiles** — Avatar uploads, watch history tracking, and account updates
-- **Input Validation** — Request validation using Joi schemas
-- **Security Hardened** — Helmet headers, CORS, express-rate-limit, bcrypt password hashing
-- **Global Error Handling** — Centralized error middleware with custom `ApiError` class
-- **Testing Ready** — Jest + Supertest setup with MongoDB Memory Server
+- **Full-Stack SPA** — Built-in native Vanilla JS Single Page Application with dynamic dark mode UI.
+- **Robust Authentication** — Email/Password + Google OAuth 2.0 login utilizing strict `httpOnly` cookies for maximum XSS protection.
+- **Engagement System** — Likes, subscriptions, and comment functionality.
+- **Video Management** — Upload, edit, delete, and list paginated videos with Cloudinary media storage.
+- **User Profiles** — Avatar uploads, watch history tracking, and account updates.
+- **Access Control** — Custom `optionalAuth` middleware enforces privacy rules for private video access.
+- **Security Hardened** — Helmet headers, CORS, express-rate-limit, and robust data sanitization.
+- **CI/CD Pipeline** — Fully automated GitHub Actions testing and Continuous Deployment to Render.
 
 ---
 
