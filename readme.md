@@ -81,51 +81,51 @@ The server will start at `http://localhost:8000`
 
 | Method | Endpoint    | Description              | Auth |
 |--------|-------------|--------------------------|------|
-| POST   | `/register` | Register a new user      | ❌   |
-| POST   | `/login`    | Login and receive tokens | ❌   |
-| GET    | `/google`   | Login with Google OAuth  | ❌   |
-| POST   | `/refresh`  | Refresh access token     | ❌   |
-| POST   | `/logout`   | Invalidate refresh token | ❌   |
+| POST   | `/register` | Register a new user      | Public |
+| POST   | `/login`    | Login and receive tokens | Public |
+| GET    | `/google`   | Login with Google OAuth  | Public |
+| POST   | `/refresh`  | Refresh access token     | Public |
+| POST   | `/logout`   | Invalidate refresh token | Public |
 
 ### Users (`/api/v1/users`)
 
 | Method | Endpoint         | Description                     | Auth |
 |--------|------------------|---------------------------------|------|
-| POST   | `/register`      | Register with avatar upload     | ❌   |
-| GET    | `/me`            | Get current user profile        | ✅   |
-| PATCH  | `/update-account`| Update profile details          | ✅   |
-| PATCH  | `/avatar`        | Upload new avatar               | ✅   |
-| POST   | `/watch-history` | Add video to watch history      | ✅   |
+| POST   | `/register`      | Register with avatar upload     | Public |
+| GET    | `/me`            | Get current user profile        | Required |
+| PATCH  | `/update-account`| Update profile details          | Required |
+| PATCH  | `/avatar`        | Upload new avatar               | Required |
+| POST   | `/watch-history` | Add video to watch history      | Required |
 
 ### Videos (`/api/v1/videos`)
 
 | Method | Endpoint   | Description                  | Auth |
 |--------|------------|------------------------------|------|
-| GET    | `/?page=1` | List all public videos       | ❌   |
-| POST   | `/upload`  | Upload a new video           | ✅   |
-| GET    | `/:id`     | Get video by ID              | ❌   |
-| PATCH  | `/:id`     | Update video details         | ✅   |
-| DELETE | `/:id`     | Delete video                 | ✅   |
+| GET    | `/?page=1` | List all public videos       | Public |
+| POST   | `/upload`  | Upload a new video           | Required |
+| GET    | `/:id`     | Get video by ID              | Optional 🟡 |
+| PATCH  | `/:id`     | Update video details         | Required |
+| DELETE | `/:id`     | Delete video                 | Required |
 
 ### Comments (`/api/v1/comments`)
 
 | Method | Endpoint          | Description              | Auth |
 |--------|-------------------|--------------------------|------|
-| POST   | `/`               | Create a comment         | ✅   |
-| GET    | `/video/:videoId` | Get comments for a video | ❌   |
-| PATCH  | `/:id`            | Update comment text      | ✅   |
-| DELETE | `/:id`            | Delete comment           | ✅   |
+| POST   | `/`               | Create a comment         | Required |
+| GET    | `/video/:videoId` | Get comments for a video | Public |
+| PATCH  | `/:id`            | Update comment text      | Required |
+| DELETE | `/:id`            | Delete comment           | Required |
 
 ### Engagement (`/api/v1/likes` & `/api/v1/subscriptions`)
 
 | Method | Endpoint                     | Description                  | Auth |
 |--------|------------------------------|------------------------------|------|
-| POST   | `/likes/toggle/v/:videoId`   | Toggle like on video         | ✅   |
-| POST   | `/likes/toggle/c/:commentId` | Toggle like on comment       | ✅   |
-| GET    | `/likes/videos`              | Get user's liked videos      | ✅   |
-| POST   | `/subscriptions/c/:channelId`| Toggle channel subscription  | ✅   |
-| GET    | `/subscriptions/c/:channelId`| Get subscribers of channel   | ✅   |
-| GET    | `/subscriptions/u/:userId`   | Get channels user subbed to  | ✅   |
+| POST   | `/likes/toggle/v/:videoId`   | Toggle like on video         | Required |
+| POST   | `/likes/toggle/c/:commentId` | Toggle like on comment       | Required |
+| GET    | `/likes/videos`              | Get user's liked videos      | Required |
+| POST   | `/subscriptions/c/:channelId`| Toggle channel subscription  | Required |
+| GET    | `/subscriptions/c/:channelId`| Get subscribers of channel   | Required |
+| GET    | `/subscriptions/u/:userId`   | Get channels user subbed to  | Required |
 
 ---
 
