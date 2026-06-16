@@ -30,6 +30,7 @@ const api = {
   // Videos
   listVideos: (page = 1) => api.req('GET', `/videos?page=${page}&limit=12`),
   getVideo: (id) => api.req('GET', `/videos/${id}`),
+  deleteVideo: (id) => api.req('DELETE', `/videos/${id}`, null, true),
   uploadVideo: (fd) => {
     return fetch(`${API}/videos/upload`, {
       method: 'POST',
@@ -486,7 +487,10 @@ async function renderWatch(el, videoId) {
             `<button class="btn-primary toggle-sub-btn ${owner.isSubscribed ? 'btn-subscribed' : ''}" style="margin-left:auto; display:flex; align-items:center; gap:6px;" onclick="toggleSubscribe(this, '${owner._id}')">
                 <span class="text">${owner.isSubscribed ? 'Subscribed' : 'Subscribe'}</span>
                 <span class="count" style="font-size:0.9em;opacity:0.8">${owner.subscribersCount || 0}</span>
-             </button>` : ''}
+             </button>` : 
+            `<button class="btn-danger" style="margin-left:auto; display:flex; align-items:center; gap:6px;" onclick="handleDeleteVideo('${video._id}')">
+                <span class="material-symbols-outlined" style="font-size:18px">delete</span> Delete
+             </button>`}
         </div>
 
         ${video.description ? `<div class="watch-description">${escapeHtml(video.description)}</div>` : ''}
@@ -824,6 +828,17 @@ window.closeDropdown = closeDropdown;
 window.renderHome = renderHome;
 window.defaultAvatarHtml = defaultAvatarHtml;
 window.handleRoute = handleRoute;
+
+window.handleDeleteVideo = async (vid) => {
+  if (!confirm("Are you sure you want to delete this video? This cannot be undone.")) return;
+  try {
+    await api.deleteVideo(vid);
+    toast('Video deleted successfully', 'success');
+    navigate('/');
+  } catch (err) {
+    toast(err.message || 'Failed to delete video', 'error');
+  }
+};
 
 window.toggleLike = async (btn, vid) => {
   if (!state.isLoggedIn) return showAuth();
