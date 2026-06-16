@@ -1,7 +1,7 @@
-import { asyncHandler } from '../utils/AsyncHandler.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 import { api_error } from '../utils/ApiError.js';
 import { api_response } from '../utils/ApiResponse.js';
-import { uploadToCloudinary } from '../services/cloudinary.service.js';
+import { uploadToCloudinary, deleteFromCloudinary } from '../services/cloudinary.service.js';
 import { Video } from '../models/video.model.js';
 import { videoUploadSchema } from '../validators/video.validator.js';
 
@@ -53,6 +53,14 @@ export const getVideoById = asyncHandler(async (req, res) => {
   if (!video) {
     throw new api_error(404, 'Video not found');
   }
+
+  // Check visibility
+  if (!video.isPublic) {
+    if (!req.user || req.user._id.toString() !== video.owner._id.toString()) {
+      throw new api_error(403, 'You do not have permission to view this private video');
+    }
+  }
+
   res.status(200).json(new api_response(200, video, 'Video retrieved successfully'));
 });
 
@@ -74,7 +82,9 @@ export const deleteVideo = asyncHandler(async (req, res) => {
   
   if (!video) throw new api_error(404, 'Video not found or unauthorized');
   
-  // Here we would typically also delete from Cloudinary using video.videoPublicId
+  if (video.videoPublicId) {
+    await deleteFromCloudinary(video.videoPublicId);
+  }
   await Video.findByIdAndDelete(video._id);
   
   res.status(200).json(new api_response(200, null, 'Video deleted successfully'));

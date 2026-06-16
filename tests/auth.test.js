@@ -74,8 +74,9 @@ describe('Auth Endpoints', () => {
 
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.accessToken).toBeDefined();
-      expect(res.body.data.refreshToken).toBeDefined();
+      expect(res.headers['set-cookie']).toBeDefined();
+      expect(res.headers['set-cookie'].some(c => c.startsWith('accessToken='))).toBe(true);
+      expect(res.headers['set-cookie'].some(c => c.startsWith('refreshToken='))).toBe(true);
       expect(res.body.data.user.email).toBe(testUser.email);
     });
 
@@ -89,6 +90,19 @@ describe('Auth Endpoints', () => {
 
       expect(res.statusCode).toBe(401); // Unauthorized
       expect(res.body.success).toBe(false);
+    });
+
+    it('should access a protected route using the login cookie', async () => {
+      const agent = request.agent(app);
+
+      await agent.post('/api/v1/auth/login').send({
+        email: testUser.email,
+        password: testUser.password,
+      });
+
+      const res = await agent.get('/api/v1/users/me');
+      expect(res.statusCode).toBe(200);
+      expect(res.body.data.user.email).toBe(testUser.email);
     });
   });
 });

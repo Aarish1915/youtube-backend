@@ -1,9 +1,16 @@
 import { Router } from 'express';
 import passport from 'passport';
-import { registerUser, loginUser, refreshToken, logoutUser } from '../controllers/auth.controller.js';
+import { loginUser, refreshToken, logoutUser } from '../controllers/auth.controller.js';
+import { registerUser } from '../controllers/user.controller.js';
 
 // Import passport config to register the Google strategy
 import '../config/Passport.js';
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+};
 
 const router = Router();
 
@@ -44,11 +51,9 @@ router.get('/google/callback',
     }
 
     // Browser flow — redirect to test page with tokens
-    const params = new URLSearchParams({
-      accessToken,
-      refreshToken
-    });
-    res.redirect(`/oauth-callback.html?${params.toString()}`);
+    res.cookie('accessToken', accessToken, cookieOptions)
+       .cookie('refreshToken', refreshToken, cookieOptions)
+       .redirect('/oauth-callback.html');
   }
 );
 

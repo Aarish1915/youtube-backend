@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { protect } from '../middlewares/Auth.middleware.js';
+import { protect } from '../middlewares/auth.middleware.js';
 import { toggleSubscription, getUserChannelSubscribers, getSubscribedChannels } from '../controllers/subscription.controller.js';
 
 const router = Router();

@@ -1,4 +1,4 @@
-import { asyncHandler } from '../utils/AsyncHandler.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 import { api_error } from '../utils/ApiError.js';
 import { api_response } from '../utils/ApiResponse.js';
 import { Comment } from '../models/comment.model.js';

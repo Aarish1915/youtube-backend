@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { protect } from '../middlewares/Auth.middleware.js';
+import { protect } from '../middlewares/auth.middleware.js';
 import { toggleVideoLike, toggleCommentLike, getLikedVideos } from '../controllers/like.controller.js';
 
 const router = Router();

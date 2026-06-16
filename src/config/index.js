@@ -19,3 +19,19 @@ export const {
   GOOGLE_CLIENT_SECRET,
   GOOGLE_CALLBACK_URL = 'http://localhost:8000/api/v1/auth/google/callback',
 } = process.env;
+
+const requiredEnvVars = [
+  'MONGODB_URL',
+  'DB_NAME',
+  'ACCESS_TOKEN_SECRET',
+  'REFRESH_TOKEN_SECRET',
+  'CLOUDINARY_CLOUD_NAME',
+  'CLOUDINARY_API_KEY',
+  'CLOUDINARY_API_SECRET',
+];
+
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    throw new Error(`Missing required environment variable: ${envVar}`);
+  }
+}

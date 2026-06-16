@@ -14,11 +14,14 @@ export const uploadToCloudinary = async (filePath, folder) => {
       folder,
       resource_type: 'auto',
     });
-    fs.unlinkSync(filePath);
     return result;
   } catch (error) {
     console.error('Cloudinary upload error:', error);
     return null;
+  } finally {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
   }
 };
 

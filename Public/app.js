@@ -7,11 +7,7 @@ const API = '/api/v1';
 // ===== API Service =====
 const api = {
   async req(method, path, body, auth = false) {
-    const opts = { method, headers: {} };
-    if (auth) {
-      const t = localStorage.getItem('accessToken');
-      if (t) opts.headers['Authorization'] = `Bearer ${t}`;
-    }
+    const opts = { method, headers: {}, credentials: 'include' };
     if (body instanceof FormData) {
       opts.body = body;
     } else if (body) {
@@ -35,10 +31,9 @@ const api = {
   listVideos: (page = 1) => api.req('GET', `/videos?page=${page}&limit=12`),
   getVideo: (id) => api.req('GET', `/videos/${id}`),
   uploadVideo: (fd) => {
-    const t = localStorage.getItem('accessToken');
     return fetch(`${API}/videos/upload`, {
       method: 'POST',
-      headers: t ? { Authorization: `Bearer ${t}` } : {},
+      credentials: 'include',
       body: fd,
     }).then(async r => {
       const d = await r.json();
@@ -78,17 +73,13 @@ async function loadUser() {
   renderNavEnd();
 }
 
-function setAuth(accessToken, refreshToken, user) {
-  localStorage.setItem('accessToken', accessToken);
-  localStorage.setItem('refreshToken', refreshToken);
+function setAuth(user) {
   state.user = user;
   state.isLoggedIn = true;
   renderNavEnd();
 }
 
 function clearAuth() {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
   state.user = null;
   state.isLoggedIn = false;
   renderNavEnd();
@@ -210,8 +201,7 @@ function closeDropdown() {
 async function handleLogout() {
   closeDropdown();
   try {
-    const rt = localStorage.getItem('refreshToken');
-    await api.logout({ refreshToken: rt });
+    await api.logout({});
   } catch {}
   clearAuth();
   toast('Signed out successfully', 'success');
@@ -288,7 +278,7 @@ function initAuth() {
         email: document.getElementById('login-email').value.trim(),
         password: document.getElementById('login-password').value,
       });
-      setAuth(data.data.accessToken, data.data.refreshToken, data.data.user);
+      setAuth(data.data.user);
       await loadUser();
       hideAuth();
       toast('Welcome back!', 'success');
@@ -315,7 +305,7 @@ function initAuth() {
         email: document.getElementById('reg-email').value.trim(),
         password: document.getElementById('reg-password').value,
       });
-      setAuth(loginData.data.accessToken, loginData.data.refreshToken, loginData.data.user);
+      setAuth(loginData.data.user);
       await loadUser();
       hideAuth();
       toast('Welcome to VidTube!', 'success');
@@ -470,7 +460,7 @@ async function renderWatch(el, videoId) {
         <div class="video-player-wrap">
           ${video.videoUrl
             ? `<video controls autoplay preload="metadata" poster="${video.thumbnail || ''}">
-                 <source src="${video.videoUrl}" type="video/mp4">
+                 <source src="${video.videoUrl}?t=${Date.now()}" type="video/mp4">
                  Your browser does not support video.
                </video>`
             : '<div class="no-video-placeholder">Video unavailable</div>'}
@@ -786,11 +776,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Check for OAuth redirect tokens
   checkOAuthReturn();
 
-  // Check if already logged in
-  if (localStorage.getItem('accessToken')) {
-    state.isLoggedIn = true;
-    await loadUser();
-  }
+  // Check if already logged in (unconditionally try to load user on boot)
+  await loadUser();
   renderNavEnd();
 
   // Initial route

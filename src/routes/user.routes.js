@@ -1,7 +1,7 @@
 
 
 import { Router } from 'express';
-import { protect } from '../middlewares/Auth.middleware.js';
+import { protect } from '../middlewares/auth.middleware.js';
 import { registerUser, getCurrentUser, addWatchHistory, updateAccountDetails, updateAvatar } from '../controllers/user.controller.js';
 import { upload } from '../middlewares/upload.middleware.js';
 
