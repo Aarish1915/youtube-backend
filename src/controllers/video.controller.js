@@ -3,6 +3,8 @@ import { api_error } from '../utils/ApiError.js';
 import { api_response } from '../utils/ApiResponse.js';
 import { uploadToCloudinary, deleteFromCloudinary } from '../services/cloudinary.service.js';
 import { Video } from '../models/video.model.js';
+import { Like } from '../models/like.model.js';
+import { Subscription } from '../models/subscription.model.js';
 import { videoUploadSchema } from '../validators/video.validator.js';
 
 export const uploadVideo = asyncHandler(async (req, res) => {
@@ -49,7 +51,7 @@ export const listVideos = asyncHandler(async (req, res) => {
 });
 
 export const getVideoById = asyncHandler(async (req, res) => {
-  const video = await Video.findById(req.params.id).populate('owner', 'username fullName avatar');
+  const video = await Video.findById(req.params.id).populate('owner', 'username fullName avatar').lean();
   if (!video) {
     throw new api_error(404, 'Video not found');
   }
@@ -60,6 +62,25 @@ export const getVideoById = asyncHandler(async (req, res) => {
       throw new api_error(403, 'You do not have permission to view this private video');
     }
   }
+
+  // Fetch engagement stats
+  const likesCount = await Like.countDocuments({ video: video._id });
+  const subscribersCount = await Subscription.countDocuments({ channel: video.owner._id });
+
+  let isLiked = false;
+  let isSubscribed = false;
+
+  if (req.user) {
+    isLiked = !!(await Like.exists({ video: video._id, likedBy: req.user._id }));
+    if (video.owner._id.toString() !== req.user._id.toString()) {
+      isSubscribed = !!(await Subscription.exists({ channel: video.owner._id, subscriber: req.user._id }));
+    }
+  }
+
+  video.likesCount = likesCount;
+  video.isLiked = isLiked;
+  video.owner.subscribersCount = subscribersCount;
+  video.owner.isSubscribed = isSubscribed;
 
   res.status(200).json(new api_response(200, video, 'Video retrieved successfully'));
 });

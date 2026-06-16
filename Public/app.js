@@ -470,8 +470,9 @@ async function renderWatch(el, videoId) {
           <h1 class="watch-title">${escapeHtml(video.title)}</h1>
           <div class="watch-meta" style="display:flex;justify-content:space-between;align-items:center;">
             <span>${video.views || 0} views • ${timeAgo(video.createdAt)}</span>
-            <button class="btn-secondary" onclick="toggleLike('${video._id}')" style="display:flex;align-items:center;gap:6px;">
-              <span class="material-symbols-outlined">thumb_up</span> Like
+            <button class="btn-secondary toggle-like-btn ${video.isLiked ? 'btn-active' : ''}" onclick="toggleLike(this, '${video._id}')" style="display:flex;align-items:center;gap:6px;">
+              <span class="material-symbols-outlined icon">thumb_up</span>
+              <span class="count">${video.likesCount || 0}</span>
             </button>
           </div>
         </div>
@@ -482,7 +483,10 @@ async function renderWatch(el, videoId) {
             <div class="watch-channel-name">${escapeHtml(owner.fullName || owner.username || 'Unknown')}</div>
           </div>
           ${owner._id !== (state.user && state.user._id) ? 
-            `<button class="btn-primary" style="margin-left:auto" onclick="toggleSubscribe('${owner._id}')">Subscribe</button>` : ''}
+            `<button class="btn-primary toggle-sub-btn ${owner.isSubscribed ? 'btn-subscribed' : ''}" style="margin-left:auto; display:flex; align-items:center; gap:6px;" onclick="toggleSubscribe(this, '${owner._id}')">
+                <span class="text">${owner.isSubscribed ? 'Subscribed' : 'Subscribe'}</span>
+                <span class="count" style="font-size:0.9em;opacity:0.8">${owner.subscribersCount || 0}</span>
+             </button>` : ''}
         </div>
 
         ${video.description ? `<div class="watch-description">${escapeHtml(video.description)}</div>` : ''}
@@ -821,22 +825,75 @@ window.renderHome = renderHome;
 window.defaultAvatarHtml = defaultAvatarHtml;
 window.handleRoute = handleRoute;
 
-window.toggleLike = async (vid) => {
+window.toggleLike = async (btn, vid) => {
   if (!state.isLoggedIn) return showAuth();
+  
+  const isActive = btn.classList.contains('btn-active');
+  const countEl = btn.querySelector('.count');
+  let currentCount = parseInt(countEl.textContent || '0');
+  
+  // Optimistic UI toggle
+  if (isActive) {
+    btn.classList.remove('btn-active');
+    countEl.textContent = Math.max(0, currentCount - 1);
+  } else {
+    btn.classList.add('btn-active');
+    countEl.textContent = currentCount + 1;
+  }
+  
+  btn.classList.add('pop-anim');
+  setTimeout(() => btn.classList.remove('pop-anim'), 300);
+
   try {
-    const res = await api.toggleVideoLike(vid);
-    toast(res.message, 'success');
+    await api.toggleVideoLike(vid);
   } catch (err) {
+    // Revert on error
+    if (isActive) {
+      btn.classList.add('btn-active');
+      countEl.textContent = currentCount;
+    } else {
+      btn.classList.remove('btn-active');
+      countEl.textContent = currentCount;
+    }
     toast(err.message || 'Failed to toggle like', 'error');
   }
 };
 
-window.toggleSubscribe = async (cid) => {
+window.toggleSubscribe = async (btn, cid) => {
   if (!state.isLoggedIn) return showAuth();
+  
+  const isSubbed = btn.classList.contains('btn-subscribed');
+  const textEl = btn.querySelector('.text');
+  const countEl = btn.querySelector('.count');
+  let currentCount = parseInt(countEl.textContent || '0');
+  
+  // Optimistic UI toggle
+  if (isSubbed) {
+    btn.classList.remove('btn-subscribed');
+    textEl.textContent = 'Subscribe';
+    countEl.textContent = Math.max(0, currentCount - 1);
+  } else {
+    btn.classList.add('btn-subscribed');
+    textEl.textContent = 'Subscribed';
+    countEl.textContent = currentCount + 1;
+  }
+  
+  btn.classList.add('pop-anim');
+  setTimeout(() => btn.classList.remove('pop-anim'), 300);
+
   try {
-    const res = await api.toggleSubscribe(cid);
-    toast(res.message, 'success');
+    await api.toggleSubscribe(cid);
   } catch (err) {
+    // Revert
+    if (isSubbed) {
+      btn.classList.add('btn-subscribed');
+      textEl.textContent = 'Subscribed';
+      countEl.textContent = currentCount;
+    } else {
+      btn.classList.remove('btn-subscribed');
+      textEl.textContent = 'Subscribe';
+      countEl.textContent = currentCount;
+    }
     toast(err.message || 'Failed to subscribe', 'error');
   }
 };
